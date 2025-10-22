@@ -89,12 +89,13 @@ public class ProductService implements IProductService{
     public boolean existsByName(String name) {
         return productRepository.existsByName(name);
     }
+
     @Override
     public ProductImage createProductImage(
             Long productId,
             ProductImageDTO productImageDTO) throws Exception {
         Product existingProduct = productRepository
-                .findById(productImageDTO.getProductId())
+                .findById(productId)
                 .orElseThrow(() ->
                         new DataNotFoundException(
                                 "Cannot find product with id: "+productImageDTO.getProductId()));

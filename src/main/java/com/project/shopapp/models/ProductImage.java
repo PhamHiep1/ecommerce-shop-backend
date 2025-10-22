@@ -23,3 +23,4 @@ public class ProductImage {
     private String imageUrl;
 
 }
+ 

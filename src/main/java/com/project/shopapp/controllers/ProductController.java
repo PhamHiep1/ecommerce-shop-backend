@@ -50,6 +50,8 @@ public class ProductController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
     @PostMapping(value = "uploads/{id}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     //POST http://localhost:8088/v1/api/products
@@ -59,6 +61,7 @@ public class ProductController {
     ){
         try {
             Product existingProduct = productService.getProductById(productId);
+
             files = files == null ? new ArrayList<MultipartFile>() : files;
             List<ProductImage> productImages = new ArrayList<>();
             for (MultipartFile file : files) {
