@@ -10,6 +10,7 @@ import com.project.shopapp.models.ProductImage;
 import com.project.shopapp.repositories.CategoryRepository;
 import com.project.shopapp.repositories.ProductImageRepository;
 import com.project.shopapp.repositories.ProductRepository;
+import com.project.shopapp.responses.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +36,7 @@ public class ProductService implements IProductService{
                 .name(productDTO.getName())
                 .price(productDTO.getPrice())
                 .thumbnail(productDTO.getThumbnail())
+                .description(productDTO.getDescription())
                 .category(existingCategory)
                 .build();
         return productRepository.save(newProduct);
@@ -48,9 +50,22 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public Page<Product> getAllProducts(PageRequest pageRequest) {
+    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
         // Lấy danh sách sản phẩm theo trang(page) và giới hạn(limit)
-        return productRepository.findAll(pageRequest);
+
+        return productRepository.findAll(pageRequest).map(product->{
+            ProductResponse productResponse = ProductResponse
+                    .builder()
+                    .name(product.getName())
+                    .thumbnail(product.getThumbnail())
+                    .price(product.getPrice())
+                    .description(product.getDescription())
+                    .categoryId(product.getCategory().getId())
+                    .build();
+            productResponse.setCreatedAt(product.getCreatedAt());
+            productResponse.setUpdatedAt(product.getUpdatedAt());
+            return productResponse;
+        } );
     }
 
     @Override
@@ -105,8 +120,8 @@ public class ProductService implements IProductService{
                 .build();
         //Ko cho insert quá 5 ảnh cho 1 sản phẩm
         int size = productImageRepository.findByProductId(productId).size();
-        if(size >= 5) {
-            throw new InvalidParamException("Number of images must be <= 5");
+        if(size > ProductImage.MAXIMUM_IMAGE_PER_PRODUCT) {
+            throw new InvalidParamException("Number of images must be <= "+ ProductImage.MAXIMUM_IMAGE_PER_PRODUCT);
         }
         return productImageRepository.save(newProductImage);
     }

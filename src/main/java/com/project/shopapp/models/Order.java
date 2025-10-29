@@ -22,7 +22,7 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "fullname", length = 100)
+    @Column(name = "full_name", length = 100)
     private String fullName;
 
     @Column(name = "email", length = 100)
@@ -38,7 +38,7 @@ public class Order {
     private String note;
 
     @Column(name="order_date")
-    private LocalDateTime orderDate;
+    private Date orderDate;
 
     @Column(name = "status")
     private String status;
