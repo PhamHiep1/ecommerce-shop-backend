@@ -25,7 +25,7 @@ public class OrderService implements IOrderService{
     private final ModelMapper modelMapper;
 
     @Override
-    public OrderResponse createOrder(OrderDTO orderDTO) throws Exception {
+    public Order createOrder(OrderDTO orderDTO) throws Exception {
         User user = userRepository.findById(orderDTO.getUserId())
                 .orElseThrow(()-> new DataNotFoundException(
                      "cannot found user with id"+orderDTO.getUserId()));
@@ -52,26 +52,50 @@ public class OrderService implements IOrderService{
         order.setActive(true);
         orderRepository.save(order);
 
-        return modelMapper.map(order, OrderResponse.class);
+        return order;
     }
 
     @Override
-    public OrderResponse getOrderById(Long id) {
-        return null;
+    public Order getOrderById(Long id) {
+        return orderRepository.findById(id).orElse(null);
     }
 
     @Override
-    public List<OrderResponse> getAllOrder() {
-        return List.of();
+    public List<Order> findOrderByUserId(Long userId)
+    {
+        return orderRepository.findByUserId(userId);
     }
 
     @Override
-    public OrderResponse updateOrderById(Long id, OrderDTO orderDTO) {
-        return null;
+    public Order updateOrderById(Long id, OrderDTO orderDTO)
+            throws DataNotFoundException {
+        Order existingOrder = orderRepository.findById(id)
+                .orElseThrow(()->new DataNotFoundException(
+                        "cannot find order with id = "+id));
+        User existingUser = userRepository.findById(orderDTO.getUserId())
+                .orElseThrow(()-> new DataNotFoundException(
+                        "cannot find user with id "+ orderDTO.getUserId()
+                ));
+
+        modelMapper.typeMap(OrderDTO.class,Order.class)
+                .addMappings(
+                        mapper
+                                -> mapper.skip(Order::setId));
+
+        modelMapper.map(orderDTO,existingOrder);
+        existingOrder.setUser(existingUser);
+        orderRepository.save(existingOrder);
+
+        return existingOrder;
     }
 
     @Override
     public void deleteOrderById(Long id) {
-
+        Order order = orderRepository.findById(id).orElse(null);
+        // soft-delete
+        if(order != null){
+            order.setActive(false);
+            orderRepository.save(order);
+        }
     }
 }

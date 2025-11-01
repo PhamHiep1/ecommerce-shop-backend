@@ -8,10 +8,10 @@ import com.project.shopapp.responses.OrderResponse;
 import java.util.List;
 
 public interface IOrderService {
-    OrderResponse createOrder(OrderDTO orderDTO) throws Exception;
-    OrderResponse getOrderById(Long id);
-    List<OrderResponse> getAllOrder();
-    OrderResponse updateOrderById(Long id, OrderDTO orderDTO);
+    Order createOrder(OrderDTO orderDTO) throws Exception;
+    Order getOrderById(Long id);
+    List<Order> findOrderByUserId(Long userId);
+    Order updateOrderById(Long id, OrderDTO orderDTO) throws DataNotFoundException;
     void deleteOrderById(Long id);
 
 }

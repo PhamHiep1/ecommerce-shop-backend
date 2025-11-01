@@ -1,7 +1,11 @@
 package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.*;
+import com.project.shopapp.models.OrderDetail;
+import com.project.shopapp.services.OrderDetailService;
+import com.project.shopapp.services.OrderService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -9,34 +13,66 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("${api.prefix}/order_details")
 public class OrderDetailController {
+    private final OrderDetailService orderDetailService;
     //Thêm mới 1 order detail
     @PostMapping("")
     public ResponseEntity<?> createOrderDetail(
-            @Valid  @RequestBody OrderDetailDTO newOrderDetail) {
-        return ResponseEntity.ok("createOrderDetail here");
+//            @Valid
+            @RequestBody OrderDetailDTO orderDetailDTO) {
+
+        try {
+            OrderDetail orderDetail= orderDetailService.createOrderDetail(orderDetailDTO);
+            return ResponseEntity.ok(orderDetail);
+        } catch (Exception e) {
+            return  ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderDetail(
             @Valid @PathVariable("id") Long id) {
-        return ResponseEntity.ok("getOrderDetail with id = "+id);
+
+        try {
+            OrderDetail orderDetail = orderDetailService.getOrderDetailById(id);
+            return ResponseEntity.ok(orderDetail);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     //lấy ra danh sách các order_details của 1 order nào đó
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<?> getOrderDetails(@Valid @PathVariable("orderId") Long orderId) {
-        return ResponseEntity.ok("getOrderDetails with orderId = "+orderId);
+    public ResponseEntity<?> getOrderDetails(
+            @Valid @PathVariable("orderId") Long orderId) {
+        try {
+            List<OrderDetail> orderDetails=  orderDetailService.getOrderDetails(orderId);
+            return  ResponseEntity.ok(orderDetails);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
     @PutMapping("/{id}")
     public ResponseEntity<?> updateOrderDetail(
             @Valid @PathVariable("id") Long id,
             @RequestBody OrderDetailDTO newOrderDetailData) {
-        return ResponseEntity.ok("updateOrderDetail with id="+id
-                +",newOrderDetailData: "+newOrderDetailData);
+
+        try {
+            OrderDetail orderDetail =  orderDetailService.updateOrderDetail(id,newOrderDetailData);
+            return ResponseEntity.ok(orderDetail);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrderDetail(
+    public ResponseEntity<?> deleteOrderDetail(
             @Valid @PathVariable("id") Long id) {
-        return ResponseEntity.noContent().build();
+        try {
+            orderDetailService.deleteOrderDetail(id);
+            return ResponseEntity.ok(String.format("delete order detail with id = %d successfully",id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
