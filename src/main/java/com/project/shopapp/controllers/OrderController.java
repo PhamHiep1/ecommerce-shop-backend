@@ -4,6 +4,7 @@ import com.project.shopapp.dtos.*;
 import com.project.shopapp.models.Order;
 import com.project.shopapp.responses.OrderResponse;
 import com.project.shopapp.responses.ProductResponse;
+import com.project.shopapp.services.IOrderService;
 import com.project.shopapp.services.OrderService;
 import com.project.shopapp.services.ProductService;
 import jakarta.validation.Valid;
@@ -18,7 +19,7 @@ import java.util.List;
 @RequestMapping("${api.prefix}/orders")
 @RequiredArgsConstructor
 public class OrderController {
-    private final OrderService orderService;
+    private final IOrderService orderService;
     @PostMapping("")
     public ResponseEntity<?> createOrder(
             @Valid @RequestBody OrderDTO orderDTO,

@@ -2,6 +2,8 @@ package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.*;
 import com.project.shopapp.models.OrderDetail;
+import com.project.shopapp.responses.OrderDetailResponse;
+import com.project.shopapp.services.IOrderDetailService;
 import com.project.shopapp.services.OrderDetailService;
 import com.project.shopapp.services.OrderService;
 import jakarta.validation.Valid;
@@ -16,16 +18,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/order_details")
 public class OrderDetailController {
-    private final OrderDetailService orderDetailService;
+    private final IOrderDetailService orderDetailService;
     //Thêm mới 1 order detail
     @PostMapping("")
     public ResponseEntity<?> createOrderDetail(
-//            @Valid
-            @RequestBody OrderDetailDTO orderDetailDTO) {
+            @Valid @RequestBody OrderDetailDTO orderDetailDTO) {
 
         try {
             OrderDetail orderDetail= orderDetailService.createOrderDetail(orderDetailDTO);
-            return ResponseEntity.ok(orderDetail);
+            return ResponseEntity.ok(OrderDetailResponse.fromOrderDetail(orderDetail));
         } catch (Exception e) {
             return  ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -36,7 +37,7 @@ public class OrderDetailController {
 
         try {
             OrderDetail orderDetail = orderDetailService.getOrderDetailById(id);
-            return ResponseEntity.ok(orderDetail);
+            return ResponseEntity.ok(OrderDetailResponse.fromOrderDetail(orderDetail));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -47,7 +48,11 @@ public class OrderDetailController {
             @Valid @PathVariable("orderId") Long orderId) {
         try {
             List<OrderDetail> orderDetails=  orderDetailService.getOrderDetails(orderId);
-            return  ResponseEntity.ok(orderDetails);
+            List<OrderDetailResponse> orderDetailResponses =
+                    orderDetails.stream()
+                            .map(OrderDetailResponse::fromOrderDetail)
+                            .toList();
+            return  ResponseEntity.ok(orderDetailResponses);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -60,7 +65,7 @@ public class OrderDetailController {
 
         try {
             OrderDetail orderDetail =  orderDetailService.updateOrderDetail(id,newOrderDetailData);
-            return ResponseEntity.ok(orderDetail);
+            return ResponseEntity.ok(OrderDetailResponse.fromOrderDetail(orderDetail));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
